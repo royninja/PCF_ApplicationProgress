@@ -35,9 +35,6 @@ export class ApplicaionProgress implements ComponentFramework.ReactControl<IInpu
         this.maxRange = 100;
         this.Options = context.parameters.StageField.attributes?.Options;
         this.OptionSet = [];
-        // this.Options?.forEach(opt =>{
-        //     this.OptionSet.push({label: opt.Label, value: opt.Value})
-        // });
         this.OptionSet = this.Options?.map(optn =>({label: optn.Label, value: optn.Value}))??[];
         this.selectedValue = context.parameters.StageField.raw ?? -1;
         this.notifyOutputChanged = notifyOutputChanged;
@@ -50,10 +47,15 @@ export class ApplicaionProgress implements ComponentFramework.ReactControl<IInpu
      */
     public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
         let props : IApplicationProgressBarProps; 
-        if(this.selectedValue == -1 || this.selectedValue == 0){
+        this.selectedValue = context.parameters.StageField.raw ?? -1;
+        if(this.selectedValue == -1 || this.selectedValue <= 0){
             props = {stageName: 'Not Started!',x: 0,y:this.maxRange,}
         }else{
-            props = this.OptionSet != null && this.OptionSet != undefined ? {stageName:this.OptionSet[this.selectedValue-1].label,x: (this.selectedValue/this.OptionSet.length)*100, y: this.maxRange} : {stageName:'Not Started',x: 0,y:this.maxRange};
+            if(this.selectedValue > this.OptionSet.length){
+                props = {stageName: this.OptionSet[this.OptionSet.length-1].label, x: 100, y: 100};
+            }else{
+                props = this.OptionSet != null && this.OptionSet != undefined ? {stageName:this.OptionSet[this.selectedValue-1].label,x: (this.selectedValue/this.OptionSet.length)*100, y: this.maxRange} : {stageName:'Not Started',x: 0,y:this.maxRange};
+            }
         }
         return React.createElement(
             ApplicationProgress,props
